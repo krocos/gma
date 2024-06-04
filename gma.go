@@ -2,7 +2,7 @@ package gma
 
 type AssertFunc[T any] func(x T) bool
 
-type MatchFunc[T any] func(want T, got T) bool
+type MatchFunc[T, P any] func(want P, got T) bool
 
 type Assert[T any] struct {
 	asserter AssertFunc[T]
@@ -29,14 +29,14 @@ func (m *Assert[T]) String() string {
 	return "asserter"
 }
 
-type Match[T any] struct {
-	match MatchFunc[T]
-	want  T
+type Match[T, P any] struct {
+	match MatchFunc[T, P]
+	want  P
 	msg   string
 }
 
-func MATCH[T any](matcher MatchFunc[T], want T, msg ...string) *Match[T] {
-	m := &Match[T]{
+func MATCH[T, P any](matcher MatchFunc[T, P], want P, msg ...string) *Match[T, P] {
+	m := &Match[T, P]{
 		match: matcher,
 		want:  want,
 	}
@@ -46,11 +46,11 @@ func MATCH[T any](matcher MatchFunc[T], want T, msg ...string) *Match[T] {
 	return m
 }
 
-func (m *Match[T]) Matches(x any) bool {
+func (m *Match[T, P]) Matches(x any) bool {
 	return m.match(m.want, x.(T))
 }
 
-func (m *Match[T]) String() string {
+func (m *Match[T, P]) String() string {
 	if m.msg != "" {
 		return m.msg
 	}
